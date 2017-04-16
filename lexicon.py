@@ -68,23 +68,43 @@ def lexi_rule(word):
                             phone.append(word[i])
     
     return phone
-                
+
+def save_lexi(lexi, fl):
+    f = open(fl, 'w')
+    f.write('SIL <SIL>\n')
+    
+    for l in lexi:
+        print l[0], ' '.join(l[1])
+        f.write(l[0]+' '+' '.join(l[1])+'\n')
+    
+    f.close()
+    
+    print('DONE')
+    
 
 def main(arg):
-    fl = open(arg.f, 'r')
+    res = []
+    fl = open(arg.src, 'r')
     
     for ln in fl:
         phone = lexi_rule(ln)
-        print (ln, phone)
+        res.append([ln.lower().strip(), phone]);
+    
+    save_lexi(res, arg.save)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     
     parser.add_argument(
-                        '-f',
+                        '-src',
                         type=str,
                         default='/tmp/data',
                         help='file contain word or sentences')
+    parser.add_argument(
+                        '-save',
+                        type=str,
+                        default='resultlexi',
+                        help='file result')
     
     parsed, unparsed = parser.parse_known_args()
     
