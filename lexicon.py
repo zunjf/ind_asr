@@ -45,8 +45,6 @@ def abb_rule(word):
             if(skip > 0):
                 skip = skip - 1
                 pass
-            elif(word[i] == 'c'):
-                phone.append('')
             elif(word[i] in alphabet):
                 phone.append(alphabet[word[i]])
             else:
