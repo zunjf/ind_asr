@@ -13,7 +13,37 @@ dip_rule = ['ai', 'au', 'ei', 'oi']
 # chvow_rule = ['ae', 'ia', 'iu', 'ie', 'io', 'ea', 'eo']
 end_rule = {'b' : 'p', 'd':'t', 'g':'k'}
 eng_rule = ['ng', 'ny']
-alphabet = {'b':'b e', 
+
+
+def abb_rule(word, c=False):
+    word = word.lower().strip()
+    phone = []
+    skip = 0
+
+    if(c):
+        alphabet = {'b':'b e', 
+              'c':'s e', 
+              'd':'d e', 
+              'f':'e f', 
+              'g':'g e', 
+              'h':'h a', 
+              'j':'j e', 
+              'k':'k a', 
+              'l':'e l', 
+              'm':'e m', 
+              'n':'e n', 
+              'p':'p e', 
+              'q':'k i', 
+              'r':'e r', 
+              's':'e s', 
+              't':'t e', 
+              'v':'f e', 
+              'w':'w e', 
+              'x':'e k s', 
+              'y':'y e', 
+              'z':'z e t'}
+    else:
+        alphabet = {'b':'b e', 
               'c':'c e', 
               'd':'d e', 
               'f':'e f', 
@@ -34,11 +64,6 @@ alphabet = {'b':'b e',
               'x':'e k s', 
               'y':'y e', 
               'z':'z e t'}
-
-def abb_rule(word):
-    word = word.lower().strip()
-    phone = []
-    skip = 0
     
     if(len(word) > 0):
         for i in range(len(word)):
@@ -143,6 +168,9 @@ def main(arg):
         else:
             phone = lexi_rule(ln)
         res.append([ln.lower().strip(), phone]);
+        if(arg.abb and 'c' in ln):
+            phone = abb_rule(ln, True)
+            res.append([ln.lower().strip()+'(1)', phone]);
     
     save_lexi(res, arg.save)
 
