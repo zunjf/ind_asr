@@ -10,9 +10,72 @@ import argparse
 
 e_rule = ['me', 'pe', 'ber', 'ke', 'ter', 'se']
 dip_rule = ['ai', 'au', 'ei', 'oi']
-chvow_rule = ['ae', 'ia', 'iu', 'ie', 'io', 'ea', 'eo']
+# chvow_rule = ['ae', 'ia', 'iu', 'ie', 'io', 'ea', 'eo']
 end_rule = {'b' : 'p', 'd':'t', 'g':'k'}
-eng_rule = ['ng']
+eng_rule = ['ng', 'ny']
+
+
+def abb_rule(word, c=False):
+    word = word.lower().strip()
+    phone = []
+    skip = 0
+
+    if(c):
+        alphabet = {'b':'b e', 
+              'c':'s e', 
+              'd':'d e', 
+              'f':'e f', 
+              'g':'g e', 
+              'h':'h a', 
+              'j':'j e', 
+              'k':'k a', 
+              'l':'e l', 
+              'm':'e m', 
+              'n':'e n', 
+              'p':'p e', 
+              'q':'k i', 
+              'r':'e r', 
+              's':'e s', 
+              't':'t e', 
+              'v':'f e', 
+              'w':'w e', 
+              'x':'e k s', 
+              'y':'y e', 
+              'z':'z e t'}
+    else:
+        alphabet = {'b':'b e', 
+              'c':'c e', 
+              'd':'d e', 
+              'f':'e f', 
+              'g':'g e', 
+              'h':'h a', 
+              'j':'j e', 
+              'k':'k a', 
+              'l':'e l', 
+              'm':'e m', 
+              'n':'e n', 
+              'p':'p e', 
+              'q':'k i', 
+              'r':'e r', 
+              's':'e s', 
+              't':'t e', 
+              'v':'f e', 
+              'w':'w e', 
+              'x':'e k s', 
+              'y':'y e', 
+              'z':'z e t'}
+    
+    if(len(word) > 0):
+        for i in range(len(word)):
+            if(skip > 0):
+                skip = skip - 1
+                pass
+            elif(word[i] in alphabet):
+                phone.append(alphabet[word[i]])
+            else:
+                phone.append(word[i])
+
+    return phone
 
 def lexi_rule(word):
     word = word.lower().strip()
@@ -25,13 +88,16 @@ def lexi_rule(word):
                 skip = skip - 1
                 pass
             else:
-                if(i+1 == len(word)):
+                if(word[i] == 'x'):
+                    phone.append('k')
+                    phone.append('s')
+                elif(i+1 == len(word)):
                     if(word[i] in end_rule.keys()):
                         phone.append(end_rule[word[i]])
                     else:
                         phone.append(word[i])
                 else:
-                    # The word to be check
+                    # Check by two letters at a time
                     the_word = word[i]+word[i+1]
                     
                     # The rule
@@ -39,19 +105,29 @@ def lexi_rule(word):
                         phone.append(word[i])
                         phone.append('ax')
                         skip = 1
-                    elif(the_word in dip_rule):
-                        if(i+2 == len(word)):
-                            phone.append('ay')
+                    elif((the_word in dip_rule) and (i+2 == len(word))):
+                        if(the_word == 'ai'):
+                            phone.append('a y')
+                            skip = 1
+                        elif(the_word == 'au'):
+                            phone.append('a w')
+                            skip = 1
+                        elif(the_word == 'ei'):
+                            phone.append('e y')
+                            skip = 1
+                        elif(the_word == 'oi'):
+                            phone.append('o y')
                             skip = 1
                         else:
+                            phone.append(word[i])
                             pass
-                    elif(the_word in chvow_rule):
-                        phone.append(word[i])
-                        phone.append('y')
-                        phone.append(word[i+1])
+#                     elif(the_word in chvow_rule):
+#                         phone.append(word[i])
+#                         phone.append('y')
+#                         phone.append(word[i+1])
                         skip = 1
                     elif(the_word in eng_rule):
-                        phone.append('ng')
+                        phone.append(word[i]+word[i+1])
                         skip = 1
                     else:
                         if(i+3 < len(word)):
@@ -87,8 +163,14 @@ def main(arg):
     fl = open(arg.src, 'r')
     
     for ln in fl:
-        phone = lexi_rule(ln)
+        if(arg.abb):
+            phone = abb_rule(ln)
+        else:
+            phone = lexi_rule(ln)
         res.append([ln.lower().strip(), phone]);
+        if(arg.abb and 'c' in ln):
+            phone = abb_rule(ln, True)
+            res.append([ln.lower().strip()+'(1)', phone]);
     
     save_lexi(res, arg.save)
 
@@ -105,6 +187,10 @@ if __name__ == "__main__":
                         type=str,
                         default='resultlexi',
                         help='file result')
+    parser.add_argument(
+                        '-abb',
+                        action='store_true', default=False,
+                        help='is abbreviation file')
     
     parsed, unparsed = parser.parse_known_args()
     
